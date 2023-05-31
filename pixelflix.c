@@ -13,7 +13,9 @@
 #include <libswscale/swscale.h>
 #include <SDL2/SDL.h>
 #include <pthread.h>
-#include <unistd.h>
+
+pthread_mutex_t mutex;
+pthread_cond_t cond;
 
 int main(int argc, char* argv[])
 {

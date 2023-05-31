@@ -2,9 +2,9 @@ CC = gcc
 CFLAGS = -Wall -Wextra
 LDFLAGS = -lavformat -lavcodec -lavutil -lswscale -lSDL2
 
-TARGET = ffplayer
+TARGET = pixelflix
 
-$(TARGET): ffplayer.c
+$(TARGET): pixelflix.c
 	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
 clean:
