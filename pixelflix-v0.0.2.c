@@ -2,9 +2,11 @@
  *ffplayer.c
  *detail:
  *  A simple ffmpeg player.
- *version: 0.0.1
+ *version: 0.0.2
+ *  Add timer thread to make video more fluent
  *
  ************************************************************************/
+
 #include <stdio.h>
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
@@ -13,10 +15,27 @@
 #include <libavutil/mem.h>
 #include <libswscale/swscale.h>
 #include <SDL2/SDL.h>
+#include <pthread.h>
+
+
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
+int isReceived = 0;
+
+void* timer(void* arg)
+{
+    uint32_t* time = (uint32_t*)arg;
+    while (1) {
+        SDL_Delay(*time);
+        pthread_mutex_lock(&mutex);
+        pthread_cond_signal(&cond);
+        isReceived = 1;
+        pthread_mutex_unlock(&mutex);
+    }
+}
 
 int main(int argc, char* argv[])
 {
-
     // initialize
     AVFormatContext* p_avfmt_ctx = NULL;
     AVCodecContext* p_avcodec_ctx = NULL;
@@ -184,10 +203,20 @@ int main(int argc, char* argv[])
     rect.h = p_avcodec_ctx->height;
     p_avpacket = (AVPacket*)av_malloc(sizeof(AVPacket));
 
+    AVRational frameRate = av_guess_frame_rate(p_avfmt_ctx, p_avfmt_ctx->streams[v_idx], NULL);
+    printf("Video Frame Rate: %d/%d\n", frameRate.num, frameRate.den);
+    uint32_t delay = frameRate.den * 1000 / frameRate.num;
+    printf("delay: %d\n", delay);
+
+    // 创建计时器线程
+    pthread_t timerThread;
+    pthread_create(&timerThread, NULL, &timer, &delay);
+
     // read packet from stream
     // one packet contains one video frame or audio frame
     while (av_read_frame(p_avfmt_ctx, p_avpacket) == 0)
     {
+
         //if is video frame
         if (p_avpacket->stream_index == v_idx)
         {
@@ -226,8 +255,18 @@ int main(int argc, char* argv[])
                 NULL,
                 &rect
             );
+
+            // 等待定时器信号
+            pthread_mutex_lock(&mutex);
+            while (!isReceived)
+            {
+                pthread_cond_wait(&cond, &mutex); // 等待计时器线程的信号
+            }
+            isReceived = 0;
+            pthread_mutex_unlock(&mutex);
+
+
             SDL_RenderPresent(renderer);
-            SDL_Delay(40);
             av_packet_unref(p_avpacket);
 
         }
