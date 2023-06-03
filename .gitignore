@@ -1,6 +1,7 @@
 # Prerequisites
 *.d
 
+<<<<<<< HEAD
 # Object files
 *.o
 *.ko
@@ -11,11 +12,19 @@
 *.ilk
 *.map
 *.exp
+=======
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+>>>>>>> 93112c9acef1e36321e7506923ae4e2f3e46b4b1
 
 # Precompiled Headers
 *.gch
 *.pch
 
+<<<<<<< HEAD
 # Libraries
 *.lib
 *.a
@@ -27,11 +36,28 @@
 *.so
 *.so.*
 *.dylib
+=======
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+>>>>>>> 93112c9acef1e36321e7506923ae4e2f3e46b4b1
 
 # Executables
 *.exe
 *.out
 *.app
+<<<<<<< HEAD
 *.i*86
 *.x86_64
 *.hex
@@ -51,7 +77,16 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+#Win32
+.vs/
+Debug/
+Win32/Debug/
+PixelFlix.sln
+
+#Linux
 .vscode/
 pixelflix
-test/
-testvideo.flv
+resource/
+
+=======
+>>>>>>> 93112c9acef1e36321e7506923ae4e2f3e46b4b1
