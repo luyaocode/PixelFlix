@@ -422,7 +422,7 @@ void audioCallback(void* userdata, uint8_t* stream, int len)
 void* playAudio(void* arg)
 {
 	//const char* path = (const char*)arg;
-	const char* path = "D:/IDM/testvideo.flv";
+	const char* path = "D:/codes/ffmpeg/PixelFlix/resource/SampleVideo_640x360_1mb.mkv";
 	if (path[0] == '\0') exitCase("Invalid file name.");
 	printf("Audio name: %s\n", path);
 
