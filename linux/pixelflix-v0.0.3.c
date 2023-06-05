@@ -473,10 +473,15 @@ pthread_t timerThread;
 pthread_t videoThread;
 
 //timer thread
+pthread_t timerThread;
+pthread_mutex_t mutex;
+pthread_cond_t cond;
+
 void* timer(void* arg)
 {
     uint32_t* time = (uint32_t*)arg;
-    while (1) {
+    while (1)
+    {
         SDL_Event event;
         event.type = SDL_USERVENT_REFRESH;
         SDL_PushEvent(&event);
@@ -523,12 +528,12 @@ int openAudioStream(void* arg)
     return 1;
 }
 
+
 //video thread
 void* playVideo(void* arg)
 {
     globalParas* gbl = (globalParas*)arg;
 
-    // AVCodec* p_avcodec = gbl->p_avcodec_video;
     AVCodecContext* p_avcodec_ctx = gbl->p_avcodec_ctx_video;
 
     AVFrame* p_avframe_raw = NULL;
@@ -589,7 +594,7 @@ void* playVideo(void* arg)
     }
 
     win = SDL_CreateWindow(
-        "FFmpeg player demo" ,
+        "PixelFlix 简易视频播放器" ,
         SDL_WINDOWPOS_UNDEFINED ,
         SDL_WINDOWPOS_UNDEFINED ,
         p_avcodec_ctx->width ,
@@ -759,14 +764,15 @@ int main(int argc , char* argv[])
     {
         printf("No video stream.\n");
     }
-    if (v_idx == -1)
+    if (a_idx == -1)
     {
-        printf("No video stream.\n");
+        printf("No audio stream.\n");
     }
 
     printf("video stream index:%d\n" , v_idx);
     printf("audio stream index:%d\n" , a_idx);
-    // get video codec context
+
+    // get a codec
     p_avcodec_para = p_avfmt_ctx->streams[v_idx]->codecpar;
     p_avcodec = avcodec_find_decoder(p_avcodec_para->codec_id);
     if (!p_avcodec)
@@ -775,6 +781,7 @@ int main(int argc , char* argv[])
         exit(EXIT_FAILURE);
     }
     p_avcodec_ctx = avcodec_alloc_context3(p_avcodec);
+
     ret = avcodec_parameters_to_context(p_avcodec_ctx , p_avcodec_para);
     if (ret < 0)
     {
@@ -782,6 +789,7 @@ int main(int argc , char* argv[])
         exit(EXIT_FAILURE);
     }
 
+    ret = avcodec_open2(p_avcodec_ctx , p_avcodec , NULL);
     ret = avcodec_open2(p_avcodec_ctx , p_avcodec , NULL);
     if (ret < 0)
     {
@@ -881,6 +889,7 @@ int main(int argc , char* argv[])
     q.destroy(&q);
     q.destroy(&vq);
 
+    av_packet_free(&p_packet);
     avformat_close_input(&p_avfmt_ctx);
     return 0;
 
