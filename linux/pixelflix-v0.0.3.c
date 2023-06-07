@@ -6,7 +6,6 @@
  *  Add timer thread to make video more fluent
  *version: 0.0.3
  *  Play video and audio
- *  use audio packet queue and video packet queue
  *
  ************************************************************************/
 
@@ -167,7 +166,7 @@ int dequeue(PacketQueue* q , AVPacket* p)
             if (temp == q->rear) q->rear = q->head;//if n=1, q->rear should be q->head after dequeue.
             q->bytes -= sizeof(*temp);
             q->n--;
-            printf("de: n=%d, size=%d\n" , q->n , q->bytes);
+            printf("de: n=%d, size=%d, first_data=%lx\n" , q->n , q->bytes , q->head->next->packet.data);
             res = 1;
             break;
         }
@@ -709,6 +708,7 @@ void* playVideo(void* arg)
     return NULL;
 }
 
+
 int main(int argc , char* argv[])
 {
 
@@ -742,8 +742,8 @@ int main(int argc , char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    // print file info to stadard error stream
-    av_dump_format(p_avfmt_ctx , 0 , path , 0);
+    // print file info to stadard output stream
+    av_dump_format(p_avfmt_ctx , 0 , NULL , 0);
 
     // find video stream and audio stream
     int v_idx = -1;
@@ -789,7 +789,6 @@ int main(int argc , char* argv[])
         exit(EXIT_FAILURE);
     }
 
-    ret = avcodec_open2(p_avcodec_ctx , p_avcodec , NULL);
     ret = avcodec_open2(p_avcodec_ctx , p_avcodec , NULL);
     if (ret < 0)
     {
